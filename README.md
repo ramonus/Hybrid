@@ -2,5 +2,5 @@
 
 Hybrid encription communication protocool
 
-##Using:
-RSA and AES for hybrid encryption.
+## Using:
+**RSA** and **AES** for hybrid encryption.
