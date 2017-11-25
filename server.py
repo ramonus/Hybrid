@@ -74,6 +74,10 @@ class Server(socket.socket):
     print("Handling connection from:",addr[0])
     #start secure connection
     self.secureConn(conn)
+    self.__waitdata()
+    
+  def __waitdata(self):
+    pass
     
   def fsend(self,conn,data):
     try:
@@ -81,7 +85,6 @@ class Server(socket.socket):
     except:
       pass
     data = data.encode()
-    print("Sending:",data)
     conn.send(data)
   def frecive(self,conn):
     data = conn.recv(4096)
@@ -89,27 +92,31 @@ class Server(socket.socket):
       data = json.loads(data)
     except:
       pass
-    print("Recived:",data)
     return data
   def secureConn(self,conn):
+    print("Generating RSA keys...")
     self.rsa = RSAC()
     self.rsa.generateKeys()
     spkey = self.rsa.publickey.exportKey("PEM").decode()
+    print("Sending RSA public key...")
     self.fsend(conn,spkey)
+    print("Reciving RSA public key and RSA encrypted AES key...")
     data = self.frecive(conn)
     erkey = self.stoh(data["eaeskey"])
     cpubk = data["publicKey"]
-    #decrypt aes key
+    #decrypt aes 
+    print("Decrypting AES key...")
     key = self.rsa.decrypt(erkey)
     self.aesrecive = AESC(key=key)
     # encrypt aes with publickey recived
     self.rsa2 = RSAC(publickey=cpubk)
+    print("Generating AES key...")
     self.aessend = AESC()
+    print("Encrypting AES key...")
     eskey = self.htos(self.rsa2.encrypt(self.aessend.key))
+    print("Sending AES key...")
     self.fsend(conn,eskey)
     print("Connection secured")
-    print(type(self.aesrecive.key))
-    print(type(self.aessend.key))
     
 s = Server()
 s.start()

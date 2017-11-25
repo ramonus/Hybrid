@@ -55,18 +55,23 @@ class Client(socket.socket):
     print("Public key recived validating...")
     try:
       self.rsa1 = RSAC(publickey=pubk)
+      print("Generating AES key...")
       self.aes1 = AESC()
     except Exception as e:
       print("Error with the encription algorithm!",str(e))
       return False
     eskey = self.htos(self.rsa1.encrypt(self.aes1.key))
+    print("Generating RSA keys...")
     self.rsa2 = RSAC()
     self.rsa2.generateKeys()
     spkey = self.rsa2.publickey.exportKey("PEM").decode()
     data = {"eaeskey":eskey,"publicKey":spkey}
+    print("Sending encrypted AES key and public RSA key...")
     self.fsend(data)
     #waiting for aes encrypted key
+    print("Waiting RSA encrypted AES key...")
     aesk = self.stoh(self.frecive())
+    print("Decrypting AES key...")
     daesk = self.rsa2.decrypt(aesk)
     self.aes2 = AESC(key=daesk)
     print("Connection secured")
@@ -76,7 +81,6 @@ class Client(socket.socket):
     except:
       pass
     data = data.encode()
-    print("Sending:",data)
     self.send(data)
   def frecive(self):
     data = self.recv(4096)
@@ -84,7 +88,6 @@ class Client(socket.socket):
       data = json.loads(data)
     except:
       pass
-    print("Recived:",data)
     return data
     
 c = Client(("localhost",4777))
