@@ -6,7 +6,7 @@ Created on Tue Nov 14 15:49:52 2017
 @author: root
 """
 
-import socket
+import socket,json,codecs
 from RSA import *
 from AES import *
 """
@@ -33,13 +33,59 @@ s.close()
 
 class Client(socket.socket):
   
-  def __init__(self,conf):
+  def __init__(self,conf=None):
     super().__init__()
     self.conf = conf
+  def sconnect(self,conf=None):
+    if conf!=None:
+      self.conf = conf
+    print("Connecting to:",self.conf)
     self.connect(self.conf)
+    #start secure connection
+    self.secureConn()
+  def htos(self,h):
+    return codecs.encode(h,"hex_codec").decode()
+  def stoh(self,s):
+    return codecs.decode(s,"hex_codec")
+      
+  def secureConn(self):
     #recive pubk
     print("Connection established.\nWaiting public key")
-    pubk = self.recv(4096)
+    pubk = self.frecive()
     print("Public key recived validating...")
-
-
+    try:
+      self.rsa1 = RSAC(publickey=pubk)
+      self.aes1 = AESC()
+    except Exception as e:
+      print("Error with the encription algorithm!",str(e))
+      return False
+    eskey = self.htos(self.rsa1.encrypt(self.aes1.key))
+    self.rsa2 = RSAC()
+    self.rsa2.generateKeys()
+    spkey = self.rsa2.publickey.exportKey("PEM").decode()
+    data = {"eaeskey":eskey,"publicKey":spkey}
+    self.fsend(data)
+    #waiting for aes encrypted key
+    aesk = self.stoh(self.frecive())
+    daesk = self.rsa2.decrypt(aesk)
+    self.aes2 = AESC(key=daesk)
+    print("Connection secured")
+  def fsend(self,data):
+    try:
+      data = json.dumps(data)
+    except:
+      pass
+    data = data.encode()
+    print("Sending:",data)
+    self.send(data)
+  def frecive(self):
+    data = self.recv(4096)
+    try:
+      data = json.loads(data)
+    except:
+      pass
+    print("Recived:",data)
+    return data
+    
+c = Client(("localhost",4777))
+c.sconnect()

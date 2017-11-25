@@ -30,6 +30,6 @@ class AESC:
         encodeddata = base64.b64decode(encodeddata)
         iv = encodeddata[:AES.block_size]
         cipher = AES.new(self.key,AES.MODE_CBC, iv)
-        return self.unpad(cipher.decrypt(encodeddata[AES.block_size:]))
+        return self.unpad(cipher.decrypt(encodeddata[AES.block_size:])).decode()
         
 
