@@ -54,9 +54,12 @@ class SecureConnection:
     else:
       print("Not verified")
   def __sendMessages(self):
-    d = str(input("Insert the message:"))
+    d = "INIT"
     while d!="":
-      self.conn.send(self.aes_send.encrypt(d.encode()))
+      d = str(input("Insert the message:"))
+      e = self.aes_send.encrypt(d.encode())
+      print("Sending:",e)
+      self.conn.send(e)
     self.conn.send("EXIT".encode())
   def __reciveVerification(self,msg="Test message"):
     edata = self.conn.recv(4096)
