@@ -91,32 +91,7 @@ class Server(socket.socket):
       pass
     print("Recived type:",type(data))
     return data
-"""
-  def secureConn(self,conn):
-    print("Generating RSA keys...")
-    self.rsa = RSAC()
-    self.rsa.generateKeys()
-    spkey = self.rsa.publickey.exportKey("PEM").decode()
-    print("Sending RSA public key...")
-    self.fsend(conn,spkey)
-    print("Reciving RSA public key and RSA encrypted AES key...")
-    data = self.frecive(conn)
-    erkey = self.stoh(data["eaeskey"])
-    cpubk = data["publicKey"]
-    #decrypt aes 
-    print("Decrypting AES key...")
-    key = self.rsa.decrypt(erkey)
-    self.aesrecive = AESC(key=key)
-    # encrypt aes with publickey recived
-    self.rsa2 = RSAC(publickey=cpubk)
-    print("Generating AES key...")
-    self.aessend = AESC()
-    print("Encrypting AES key...")
-    eskey = self.htos(self.rsa2.encrypt(self.aessend.key))
-    print("Sending AES key...")
-    self.fsend(conn,eskey)
-    print("Connection secured")
-"""
+  
 class SecureConnection:
   def __init__(self,conn):
     self.conn = conn

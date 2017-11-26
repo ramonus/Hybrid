@@ -62,35 +62,6 @@ class Client(socket.socket):
     except:
       pass
     return data
-"""
-  def secureConn(self):
-    #recive pubk
-    print("Connection established.\nWaiting public key")
-    pubk = self.frecive()
-    print("Public key recived validating...")
-    try:
-      self.rsa1 = RSAC(publickey=pubk)
-      print("Generating AES key...")
-      self.aes1 = AESC()
-    except Exception as e:
-      print("Error with the encription algorithm!",str(e))
-      return False
-    eskey = self.htos(self.rsa1.encrypt(self.aes1.key))
-    print("Generating RSA keys...")
-    self.rsa2 = RSAC()
-    self.rsa2.generateKeys()
-    spkey = self.rsa2.publickey.exportKey("PEM").decode()
-    data = {"eaeskey":eskey,"publicKey":spkey}
-    print("Sending encrypted AES key and public RSA key...")
-    self.fsend(data)
-    #waiting for aes encrypted key
-    print("Waiting RSA encrypted AES key...")
-    aesk = self.stoh(self.frecive())
-    print("Decrypting AES key...")
-    daesk = self.rsa2.decrypt(aesk)
-    self.aes2 = AESC(key=daesk)
-    print("Connection secured")
-"""
 class SecureConnection:
   def __init__(self,conn):
     self.conn = conn
