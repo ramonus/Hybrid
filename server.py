@@ -74,8 +74,8 @@ class SecureConnection:
     self.__sendVerification()
     self.__waitMessages()
   def __waitMessages(self):
-    d = b""
-    while d.decode()!="EXIT":
+    d = ""
+    while d!="EXIT":
       d = self.conn.recv(4096)
       d = self.aes_recive.decrypt(d)
       print(d)
