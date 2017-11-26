@@ -48,17 +48,25 @@ class SecureConnection:
     self.__recivePubk()
     self.__sendAPK()
     self.__reciveEkey()
-    aesk1 = self.aes_send.key
-    aesk2 = self.aes_recive.key
     self.__reciveVerification()
-    print(aesk1,aesk2,sep="\n")
+    if self.verified:
+      self.__sendMessages()
+    else:
+      print("Not verified")
+  def __sendMessages(self):
+    d = str(input("Insert the message:"))
+    while d!="":
+      self.conn.send(self.aes_send.encrypt(d.encode()))
+    self.conn.send("EXIT".encode())
   def __reciveVerification(self,msg="Test message"):
     edata = self.conn.recv(4096)
     data = self.aes_recive.decrypt(edata)
     if data==msg:
       print("Verification completed")
+      self.verified = True
     else:
       print("Verification error")
+      self.verified = False
   def __reciveEkey(self):
     ekey = self.conn.recv(4096)
     key = self.rsa_recive.decrypt(ekey)

@@ -71,10 +71,14 @@ class SecureConnection:
     #recive encrypted AES key and public key from client
     self.__reciveKeys()
     self.__sendEkey()
-    aesk1 = self.aes_send.key
-    aesk2 = self.aes_recive.key
     self.__sendVerification()
-    print(aesk1,aesk2,sep="\n")
+    self.__waitMessages()
+  def __waitMessages(self):
+    d = b""
+    while d.decode()!="EXIT":
+      d = self.conn.recv(4096)
+      d = self.aes_recive.decrypt(d)
+      print(d.decode())
   def __sendVerification(self,msg="Test message"):
     self.conn.send(self.aes_send.encrypt(msg.encode()))
   def __sendPubk(self):
