@@ -54,7 +54,7 @@ class SecureConnection:
     print(aesk1,aesk2,sep="\n")
   def __reciveVerification(self,msg="Test message"):
     edata = self.conn.recv(4096)
-    data = self.aes_recive.decrypt(edata).decode()
+    data = self.aes_recive.decrypt(edata)
     if data==msg:
       print("Verification completed")
     else:
