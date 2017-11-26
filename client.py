@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Nov 14 15:49:52 2017
-
-@author: root
-"""
 
 import socket,json,codecs
 from RSA import *
@@ -56,7 +51,13 @@ class SecureConnection:
     aesk1 = self.aes_send.key
     aesk2 = self.aes_recive.key
     print(aesk1,aesk2,sep="\n")
-    
+  def __reciveVerification(self,msg="Test message"):
+    edata = self.conn.recv(4096)
+    data = self.aes_recive.decrypt(edata).decode()
+    if data==msg:
+      print("Verification completed")
+    else:
+      print("Verification error")
   def __reciveEkey(self):
     ekey = self.conn.recv(4096)
     key = self.rsa_recive.decrypt(ekey)

@@ -1,9 +1,5 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Editor de Spyder
-
-Este es un archivo temporal
-"""
 
 
 import socket,threading,json,codecs
@@ -65,7 +61,6 @@ class Server(socket.socket):
 class SecureConnection:
   def __init__(self,conn):
     self.conn = conn
-    
   def secure(self):
     #generate AES and RSA keys
     self.rsa_recive = RSAC()
@@ -78,7 +73,10 @@ class SecureConnection:
     self.__sendEkey()
     aesk1 = self.aes_send.key
     aesk2 = self.aes_recive.key
+    self.__sendVerification()
     print(aesk1,aesk2,sep="\n")
+  def __sendVerification(self,msg="Test message"):
+    self.conn.send(self.aes_send.encrypt(msg.encode()))
   def __sendPubk(self):
     pubk = self.rsa_recive.publickey.exportKey("PEM")
     if type(pubk)==bytes:
