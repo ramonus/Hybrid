@@ -73,11 +73,8 @@ class Server(socket.socket):
   def __cHandler(self,conn,addr):
     print("Handling connection from:",addr[0])
     #start secure connection
-    self.secureConn(conn)
-    self.__waitdata()
-    
-  def __waitdata(self):
-    pass
+    self.scon = SecureConnection(conn)
+    self.scon.secure()
     
   def fsend(self,conn,data):
     try:
@@ -92,7 +89,9 @@ class Server(socket.socket):
       data = json.loads(data)
     except:
       pass
+    print("Recived type:",type(data))
     return data
+"""
   def secureConn(self,conn):
     print("Generating RSA keys...")
     self.rsa = RSAC()
@@ -117,6 +116,37 @@ class Server(socket.socket):
     print("Sending AES key...")
     self.fsend(conn,eskey)
     print("Connection secured")
+"""
+class SecureConnection:
+  def __init__(self,conn):
+    self.conn = conn
     
+  def secure(self):
+    #generate AES and RSA keys
+    self.rsa_recive = RSAC()
+    self.rsa_recive.generateKeys()
+    self.aes_send = AESC()
+    #send rsa public key
+    self.__sendPubk()
+    #recive encrypted AES key and public key from client
+    self.__reciveKeys()
+    self.__sendEkey()
+    aesk1 = self.aes_send.key
+    aesk2 = self.aes_recive.key
+    print(aesk1,aesk2,sep="\n")
+  def __sendPubk(self):
+    pubk = self.rsa_recive.publickey.exportKey("PEM")
+    if type(pubk)==bytes:
+      self.conn.send(pubk)
+  def __reciveKeys(self):
+    data = self.conn.recv(4096).decode()
+    data = json.loads(data)
+    # configure objs
+    self.rsa_key = RSAC(publickey=bytes(data["pubk"]))
+    aes_send_key = self.rsa_recive.decrypt(bytes(data["aeskey"]))
+    self.aes_recive = AESC(key=aes_send_key)
+  def __sendEkey(self):
+    ekey = self.rsa_key.encrypt(self.aes_send.key)
+    self.conn.send(ekey)
 s = Server()
 s.start()
