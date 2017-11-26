@@ -78,7 +78,7 @@ class SecureConnection:
     while d.decode()!="EXIT":
       d = self.conn.recv(4096)
       d = self.aes_recive.decrypt(d)
-      print(d.decode())
+      print(d)
   def __sendVerification(self,msg="Test message"):
     self.conn.send(self.aes_send.encrypt(msg.encode()))
   def __sendPubk(self):
