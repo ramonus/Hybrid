@@ -50,6 +50,7 @@ class SecureConnection:
     self.__reciveEkey()
     aesk1 = self.aes_send.key
     aesk2 = self.aes_recive.key
+    self.__reciveVerification()
     print(aesk1,aesk2,sep="\n")
   def __reciveVerification(self,msg="Test message"):
     edata = self.conn.recv(4096)
