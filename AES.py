@@ -11,7 +11,7 @@ class AESC:
   def __init__(self,key=None,BS=32):
     self.BS=BS
     if key == None:
-      key = os.urandom(BS)
+      key = self.randomKey(BS)
       self.key = self.hashKey(key)
     elif type(key)==str:
       self.key = key.encode()
