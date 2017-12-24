@@ -2,11 +2,15 @@
 # -*- coding: utf-8 -*-
 
 from Crypto.PublicKey import RSA
-import os
+from Crypto.Signature import PKCS1_v1_5
+from Crypto.Hash import SHA256
+import os, codecs, json
 
 class RSAC:
   def __init__(self,privatekey=None,publickey=None):
-    if type(privatekey)==bytes:
+    if type(privatekey)==RSA._RSAobj:
+      self.privatekey = privatekey
+    elif type(privatekey)==bytes:
       self.privatekey = RSA.importKey(privatekey)
     elif type(privatekey)==str:
       if privatekey.endswith(".pem"):
@@ -15,7 +19,9 @@ class RSAC:
         self.privatekey = RSA.importKey(privatekey)
     else:
       self.privatekey = None
-    if type(publickey)==bytes:
+    if type(publickey)==RSA._RSAobj:
+      self.publickey = publickey
+    elif type(publickey)==bytes:
       self.publickey = RSA.importKey(publickey)
     elif type(publickey)==str:
       if publickey.endswith(".pem"):
@@ -56,4 +62,27 @@ class RSAC:
   def decrypt(self,encryptedtext):
     if type(encryptedtext)==bytes:
       return self.privatekey.decrypt(encryptedtext)
+  def sign(self,data):
+    """
+    returns a hex string for storage purposes and post-verification
+    """
+    if type(data)==str:
+      data = data.encode()
+    elif type(data)==dict:
+      data = json.dumps(data,sort_keys=True).encode()
+    if type(data)==bytes:
+      signer = PKCS1_v1_5.new(self.privatekey)
+      digest = SHA256.new(data)
+      return codecs.encode(signer.sign(digest),"hex_codec").decode()
+    return False
+  def verify(self,data,signature):
+    signature = codecs.decode(signature,"hex_codec")
+    if type(data)==str:
+      data = data.encode()
+    elif type(data)==dict:
+      data = json.dumps(data,sort_keys=True).encode()
+    if type(data)==bytes:
+      signer = PKCS1_v1_5.new(self.publickey)
+      digest = SHA256.new(data)
+      return signer.verify(digest,signature)
           
