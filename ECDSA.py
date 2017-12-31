@@ -10,8 +10,8 @@ class ECDSA:
     if (privatekey==None and publickey==None):
       self.generateKeys()
     else:
-      self.privatekey = privatekey
-      self.publickey = publickey
+      self.privatekey = SigningKey.from_string(privatekey,curve=SECP256k1) if privatekey!=None else None
+      self.publickey = VerifyingKey.from_string(publickey,curve=SECP256k1) if publickey!=None else None
   def generateKeys(self):
     self.privatekey = SigningKey.generate(curve=SECP256k1)
     self.publickey = self.privatekey.get_verifying_key()
