@@ -27,5 +27,7 @@ class ECDSA:
       msg = json.dumps(msg,sort_keys=True)
     if type(msg)==str:
       msg = msg.encode()
+    if type(signature)==str:
+      signature = bytes.fromhex(signature)
     h = hashlib.sha256(msg).digest()
     return self.publickey.verify(signature,h)
